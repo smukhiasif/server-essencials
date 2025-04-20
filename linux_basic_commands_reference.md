@@ -241,3 +241,67 @@ zip -r archive.zip folder/
 ```bash
 unzip archive.zip
 ```
+
+# 🔐 1. pam_faillock or pam_tally2 (Fail Locking)
+ ## ✅ Check current status:
+```
+sudo faillog -u username
+# OR
+sudo pam_tally2 -u username
+```
+
+## ✅ To unlock the user:
+
+```
+sudo faillog -r -u username
+# OR (older systems)
+sudo pam_tally2 -u username -r
+```
+
+# 🚫 2. Manual Lock in /etc/shadow
+```
+sudo grep '^username' /etc/shadow
+```
+
+# ✅ Unlock manually (if starts with !):
+
+```
+sudo passwd -u username
+```
+
+# 🔐 3. fail2ban Blocking SSH Login
+## ✅ Check banned IPs:
+```
+sudo fail2ban-client status sshd
+```
+
+## ✅ Unban an IP:
+```
+sudo fail2ban-client set sshd unbanip <IP_ADDRESS>
+```
+
+## ✅ 4. Check for SSH Daemon Restrictions
+```
+sudo nano /etc/ssh/sshd_config
+```
+
+## Look for:
+```
+DenyUsers username
+AllowUsers username
+```
+
+## Remove or correct lines if needed, then:
+```
+sudo systemctl restart sshd
+```
+
+## 🧪 Diagnostic Script Snippet
+### Want a quick unlock + diagnostic? Here's a Bash one-liner:
+```
+username="youruser"
+sudo pam_tally2 -u $username
+sudo pam_tally2 -u $username -r
+sudo passwd -u $username
+```
+
